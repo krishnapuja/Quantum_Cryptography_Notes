@@ -41,12 +41,12 @@ def create_or_reload_canvas(new_fig):
 # Function to periodically update the canvas
 def periodic_update():
     global window_local, counter, canvas_widgets, channel_order
-    print("in periodic update")
+    print("in periodic update", channel_order)
     if (counter < len(channel_order)):
         print(counter)
         circuit_transition(channel_order[counter])
         window_local.after(500, periodic_update)  # Update every 500 milliseconds (0.5 second)
-    return counter
+    return counter 
 
 def circuit_transition(gate):
     global counter
@@ -75,3 +75,4 @@ def setGlobalValues(gate_order, gate_count, window):
     window_local = window
     counter = gate_count
     channel_order = gate_order
+    print(channel_order)

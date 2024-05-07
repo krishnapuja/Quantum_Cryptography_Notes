@@ -21,11 +21,16 @@ class Quantum_Network():
         self.window = Tk()
         self.window.title('Quantum Key Distribution Network') 
         self.canvas_size = size_of_board
-        self.mode = homeSelf['selectedMode']
-        self.protocol = homeSelf['selectedProtocol']
-        self.message = homeSelf['message_var']
-        self.ksu_id_var = homeSelf['ksu_id_var']
-        self.selectedtask = homeSelf['selectedtask']
+        # self.mode = homeSelf['selectedMode']
+        # self.protocol = homeSelf['selectedProtocol']
+        # self.message = homeSelf['message_var']
+        # self.ksu_id_var = homeSelf['ksu_id_var']
+        # self.selectedtask = homeSelf['selectedtask']
+        self.mode = homeSelf.selectedMode.get()
+        self.protocol = homeSelf.selectedProtocol.get()
+        self.message = homeSelf.message_var.get()
+        self.ksu_id_var = homeSelf.ksu_id_var.get()
+        self.selectedtask = homeSelf.selectedtask.get()
         self.window.state('zoomed')
         self.continue_btn = 0
         self.node_selection_counter = 0
@@ -71,14 +76,14 @@ class Quantum_Network():
         sub_btn=Button(self.left_controls_frame,text = 'Submit', command = self.submit)
 
         reset_btn = Button(self.right_controls_frame,text = 'Reset', command = self.reset)
-        home_btn = Button(self.right_controls_frame, text='Reset Selection', command=self.onHome)
+        #home_btn = Button(self.right_controls_frame, text='Reset Selection', command=self.onHome)
 
         name_label.grid(row=0,column=0, padx=5, sticky='W')
         name_entry.grid(row=0,column=1, padx=5, sticky='W')
         sub_btn.grid(row=0,column=2, padx= 5, sticky='W')
 
         reset_btn.grid(row=0, column=0, padx=5, sticky='E')
-        home_btn.grid(row=0,column=1, padx=5, sticky='E')
+        #home_btn.grid(row=0,column=1, padx=5, sticky='E')
 
         #self.switch_mode_btn.grid(row=1, column=0, padx=5,sticky='W')
         self.updateControls()
@@ -114,7 +119,9 @@ class Quantum_Network():
             self.canvas.delete(edge.line_id2)
         for node in self.node_list:
             self.update_node_color(node, dot_color)
-        self.qc = intialize_circuit()
+        self.edge_list = []
+        self.node_list = []
+        self.qc = intialize_circuit(self.window)
         
         #self.window.destroy()
         # game_instance = Hom()
@@ -183,17 +190,20 @@ class Quantum_Network():
         self.end_selection()
         json_String = self.convertToJson(self.edge_list)
         # print(json_String)
-        # print(self.edge_list)
+        print(self.edge_list)
         # print(self.ksu_id_var.get())
 
         for i in range(len(self.edge_list)):
             channel_count = 0
+            channel_order_temp = None
             if replay_option == "Back":
                 channel_order_temp = channel_order[::-1]
 
             else:
                 channel_order_temp = channel_order
+            print(channel_order_temp)
             setGlobalValues(channel_order_temp, channel_count, self.window)
+
             edge_coords = self.canvas.coords(self.edge_list[i].line_id)
             ball_coords = [edge_coords[0], edge_coords[1]]
             end_ball_coords = [edge_coords[2], edge_coords[3]]

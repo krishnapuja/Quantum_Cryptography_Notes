@@ -22,7 +22,7 @@ def insert(nodeTraversal, ksu_id):
     conn = setup()
     cursor = conn.cursor()
     # rows = fetchallRows()
-    rows = select(ksu_id);
+    rows = select(ksu_id)
     if(len(rows) > 0):
         query = 'Update replay set nodeTraversal =?  where ksuid = ?'
         cursor.execute(query, (nodeTraversal, ksu_id))

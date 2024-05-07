@@ -1,22 +1,21 @@
 from qiskit import QuantumCircuit, QuantumRegister, Aer
+#from qiskit_aer.aerprovider import AerSimulator as Aer
 from qiskit.quantum_info import Statevector, partial_trace
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from qiskit.visualization import plot_state_qsphere
 import numpy as np
 
+quantumcirc= None
 window_local = None
 canvas_widget = None
-qc = None
-counter = None
-channel_order = None
 save1 = None
 save2 = None
 save3 = None
 counter = 1
 
-def make_entanglement(qc, a, b):
-    qc.h(a)
-    qc.cx(a, b)
+def make_entanglement(quantumcirc, a, b):
+    quantumcirc.h(a)
+    quantumcirc.cx(a, b)
 
 def final_qubit_state(stateVector, matrix):
     """Get the statevector for the first qubit, discarding the rest."""
@@ -40,12 +39,14 @@ def create_or_reload_canvas(new_fig, col):
     # Create a new FigureCanvasTkAgg widget with the new figure
     window_local = FigureCanvasTkAgg(new_fig)
     window_local.get_tk_widget().grid(row=col, column=4) 
+    window_local = FigureCanvasTkAgg(new_fig)
+    window_local.get_tk_widget().grid(row=col, column=5) 
 
 def intialize_circuit(window):
     global window_local
     window_local = window
-    qc = QuantumCircuit()
-    return qc
+    quantumcirc = QuantumCircuit()
+    return quantumcirc
 
 def BinaryToDecimal(binary): 
     binary1 = binary 
@@ -70,19 +71,27 @@ def transmit_message(number_of_nodes, message, window):
     sent_message = []
     recieved_message = []
     for message_bit in message:
-        qc = intialize_circuit(window)
+        quantumcirc = intialize_circuit(window)
         nodes = number_of_nodes*2-2
         qr = QuantumRegister(nodes*2)
-        qc.add_register(qr)
-        create_entangled_qubits(qc, number_of_nodes, message_bit)
-        message_circuits.append(qc)
+        quantumcirc.add_register(qr)
+        # for qubit in range(nodes*2):
+        #     quantumcirc.initialize(input_state, qubit)
+
+        create_entangled_qubits(quantumcirc, number_of_nodes, message_bit)
+        message_circuits.append(quantumcirc)
+    
+    print(message_circuits[0])
     
     for i,message_circuit in enumerate(message_circuits):
+        
         message_circuit.measure_all()
         aer_sim = Aer.get_backend('aer_simulator')
+
+        # Execute the circuit on the simulator
         result = aer_sim.run(message_circuit, shots=1, memory=True).result()
         measured_bit = result.get_memory()[0]
-        print(measured_bit,measured_bit[-1] )
+        print(message[i], measured_bit, measured_bit[-1] )
         sent_message.append(int(measured_bit[-1]))
         recieved_message.append(int(measured_bit[0]))
         # sv = Statevector.from_label(f'{message[i]}{message[i]}{message[i]}{message[i]}')
@@ -99,36 +108,34 @@ def transmit_message(number_of_nodes, message, window):
     return recieved_message
 
 
-def create_entangled_qubits(qc, number_of_nodes, message_bit):
+def create_entangled_qubits(quantumcirc, number_of_nodes, message_bit):
     #print('here', index)
     nodes = number_of_nodes*2-2
-    print(nodes)
     for index in range(nodes):
         # if message_bit == '1':
-        #      qc.x(index*2)
-        #      qc.x(index*2+1)
-        qc.h(index*2)
-        qc.cx(index*2, index*2 + 1)
+        #      quantumcirc.x(index*2)
+        #      quantumcirc.x(index*2+1)
+        quantumcirc.h(index*2)
+        quantumcirc.cx(index*2, index*2 + 1)
     global save1
-    save1 = Statevector(qc)
+    save1 = Statevector(quantumcirc)
 
     for index in range(nodes):
         if(index>0):
-            qc.barrier(index*2, index*2-1)
-            qc.cx(index*2-1, index*2)
-            qc.h(index*2-1)
-            qc.barrier(index*2, index*2-1)
+            quantumcirc.barrier(index*2, index*2-1)
+            quantumcirc.cx(index*2-1, index*2)
+            quantumcirc.h(index*2-1)
+            quantumcirc.barrier(index*2, index*2-1)
     global save2
-    save2 = Statevector(qc)
+    save2 = Statevector(quantumcirc)
     
 
     for qubit in range(1,nodes*2-2,2):
-            qc.cz(qubit, 0)
-            qc.cx(qubit+1, nodes*2-1)
+            quantumcirc.cz(qubit, 0)
+            quantumcirc.cx(qubit+1, nodes*2-1)
     global save3
-    save3 = Statevector(qc)
-    print(qc)
-    #return qc
+    save3 = Statevector(quantumcirc)
+    #return quantumcirc
     #plot = plot_state_qsphere(save3)
     # plot = plot_state_qsphere(final_qubit_state(save2, [2,3]))
     # create_or_reload_canvas(plot,0)

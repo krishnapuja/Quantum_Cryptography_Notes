@@ -63,7 +63,7 @@ class Home():
 
         sub_btn=Button(self.window,text = 'Submit', command= self.onSubmit)
         sub_btn.grid(row=13, padx=20, pady=20,  sticky='E')
-        self.window.mainloop()
+        #self.window.mainloop()
     
     def mainloop(self):
         self.window.mainloop()
@@ -71,7 +71,7 @@ class Home():
     def onSubmit(self):
         self.window.destroy()
         instance = QNetwork(self)
-        instance.mainloop()
+        #instance.mainloop()
 
 game_instance = Home()
 game_instance.mainloop()
